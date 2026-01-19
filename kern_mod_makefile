@@ -1,0 +1,226 @@
+# ==============================================================================
+# Linux Kernel Module Makefile Template
+# ==============================================================================
+# This Makefile supports both in-tree and out-of-tree kernel module builds,
+# cross-compilation, and common development tasks.
+#
+# Usage:
+#   make              - Build the kernel module
+#   make clean        - Remove build artifacts
+#   make install      - Install module to system
+#   make load         - Load module into kernel
+#   make unload       - Unload module from kernel
+#   make help         - Show available targets
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Module Configuration
+# ------------------------------------------------------------------------------
+# Define your kernel module name (without .ko extension)
+MODULE_NAME := mymodule
+
+# List all source files for your module (space-separated)
+# Example: obj-m := file1.o file2.o file3.o
+obj-m := $(MODULE_NAME).o
+
+# If your module consists of multiple source files, uncomment and configure:
+# $(MODULE_NAME)-objs := file1.o file2.o file3.o
+
+# Additional compilation flags (optional)
+# ccflags-y := -DDEBUG -Wextra
+ccflags-y := -Wall
+
+# ------------------------------------------------------------------------------
+# Kernel Build System Configuration
+# ------------------------------------------------------------------------------
+# Kernel source directory - automatically detected or can be overridden
+# Priority: Command line > Running kernel > Default paths
+KERNELDIR ?= /lib/modules/$(shell uname -r)/build
+
+# Architecture for cross-compilation (leave empty for native build)
+# Example: ARCH := arm
+ARCH ?=
+
+# Cross-compiler prefix for cross-compilation
+# Example: CROSS_COMPILE := arm-linux-gnueabihf-
+CROSS_COMPILE ?=
+
+# Installation directory prefix for modules
+# Leave empty for default system location: /lib/modules/$(uname -r)/
+# Set to custom path for staging/embedded: /path/to/rootfs
+# The kernel build system automatically appends /lib/modules/$(uname -r)/
+INSTALL_MOD_PATH ?=
+
+# ------------------------------------------------------------------------------
+# Build System Variables
+# ------------------------------------------------------------------------------
+# Current directory (for out-of-tree builds)
+PWD := $(shell pwd)
+
+# Kernel build flags
+KBUILD_FLAGS := -C $(KERNELDIR) M=$(PWD)
+
+# Add architecture and cross-compiler if specified
+ifneq ($(ARCH),)
+    KBUILD_FLAGS += ARCH=$(ARCH)
+endif
+ifneq ($(CROSS_COMPILE),)
+    KBUILD_FLAGS += CROSS_COMPILE=$(CROSS_COMPILE)
+endif
+
+# ------------------------------------------------------------------------------
+# Build Targets
+# ------------------------------------------------------------------------------
+
+# Default target: build the kernel module
+all: modules
+
+# Build kernel module(s)
+# This invokes the kernel build system (kbuild) for out-of-tree module compilation
+modules:
+	@echo "Building kernel module: $(MODULE_NAME)"
+	$(MAKE) $(KBUILD_FLAGS) modules
+
+# Clean build artifacts
+# Removes all generated files including .o, .ko, .mod.c, etc.
+clean:
+	@echo "Cleaning build artifacts..."
+	$(MAKE) $(KBUILD_FLAGS) clean
+	rm -f Module.symvers modules.order
+
+# Install module to system module directory
+# Requires root privileges
+# Default installs to: /lib/modules/$(uname -r)/
+# Custom path: make install INSTALL_MOD_PATH=/path/to/rootfs
+install: modules
+	@echo "Installing module..."
+	@if [ -n "$(INSTALL_MOD_PATH)" ]; then \
+		echo "  Target: $(INSTALL_MOD_PATH)/lib/modules/$$(uname -r)/"; \
+	else \
+		echo "  Target: /lib/modules/$$(uname -r)/"; \
+	fi
+	sudo $(MAKE) $(KBUILD_FLAGS) INSTALL_MOD_PATH=$(INSTALL_MOD_PATH) modules_install
+	sudo depmod -a
+
+# Load module into running kernel
+# Uses modprobe for dependency resolution, falls back to insmod
+load:
+	@echo "Loading module: $(MODULE_NAME)"
+	@if [ -f /lib/modules/$$(uname -r)/extra/$(MODULE_NAME).ko ]; then \
+		sudo modprobe $(MODULE_NAME); \
+	else \
+		sudo insmod $(MODULE_NAME).ko; \
+	fi
+	@echo "Module loaded. Check with: lsmod | grep $(MODULE_NAME)"
+
+# Unload module from running kernel
+unload:
+	@echo "Unloading module: $(MODULE_NAME)"
+	@if lsmod | grep -q $(MODULE_NAME); then \
+		sudo rmmod $(MODULE_NAME); \
+		echo "Module unloaded successfully"; \
+	else \
+		echo "Module $(MODULE_NAME) is not loaded"; \
+	fi
+
+# Reload module (unload + load)
+reload: unload load
+
+# Show kernel log messages (last 20 lines)
+# Useful for debugging module loading/unloading
+dmesg:
+	dmesg | tail -20
+
+# Check module information
+info:
+	@if [ -f $(MODULE_NAME).ko ]; then \
+		modinfo $(MODULE_NAME).ko; \
+	else \
+		echo "Module not built yet. Run 'make' first."; \
+	fi
+
+# ------------------------------------------------------------------------------
+# Development Targets
+# ------------------------------------------------------------------------------
+
+# Build with verbose output (shows compilation commands)
+verbose:
+	$(MAKE) $(KBUILD_FLAGS) V=1 modules
+
+# Check kernel headers availability
+check-headers:
+	@if [ ! -d $(KERNELDIR) ]; then \
+		echo "ERROR: Kernel headers not found at $(KERNELDIR)"; \
+		echo "Install with: sudo apt-get install linux-headers-$$(uname -r)"; \
+		exit 1; \
+	else \
+		echo "Kernel headers found: $(KERNELDIR)"; \
+	fi
+
+# Static analysis with sparse (if available)
+# Sparse is a semantic checker for C programs
+sparse:
+	$(MAKE) $(KBUILD_FLAGS) C=2 modules
+
+# Check coding style compliance
+# Requires checkpatch.pl from kernel source
+checkpatch:
+	@if [ -f $(KERNELDIR)/scripts/checkpatch.pl ]; then \
+		$(KERNELDIR)/scripts/checkpatch.pl --no-tree -f *.c; \
+	else \
+		echo "checkpatch.pl not found in kernel source"; \
+	fi
+
+# ------------------------------------------------------------------------------
+# Cross-Compilation Examples
+# ------------------------------------------------------------------------------
+
+# ARM cross-compilation example
+arm:
+	$(MAKE) ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- modules
+
+# ARM64/aarch64 cross-compilation example
+arm64:
+	$(MAKE) ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- modules
+
+# BeagleBone Black specific build (ARM)
+# Update KERNELDIR to point to your BBB kernel source
+bbb:
+	$(MAKE) ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- \
+		KERNELDIR=/path/to/bbb/kernel modules
+
+# ------------------------------------------------------------------------------
+# Help Target
+# ------------------------------------------------------------------------------
+
+help:
+	@echo "Linux Kernel Module Makefile"
+	@echo "============================"
+	@echo ""
+	@echo "Configuration:"
+	@echo "  MODULE_NAME     = $(MODULE_NAME)"
+	@echo "  KERNELDIR       = $(KERNELDIR)"
+	@echo "  ARCH            = $(if $(ARCH),$(ARCH),native)"
+	@echo "  CROSS_COMPILE   = $(if $(CROSS_COMPILE),$(CROSS_COMPILE),none)"
+	@echo "  INSTALL_PATH    = $(if $(INSTALL_MOD_PATH),$(INSTALL_MOD_PATH),system default)"
+	@echo ""
+	@echo "Available targets:"
+	@echo "  make              - Build kernel module"
+	@echo "  make clean        - Remove build artifacts"
+	@echo "  make install      - Install module to system"
+	@echo "  make load         - Load module into kernel"
+	@echo "  make unload       - Unload module from kernel"
+	@echo "  make reload       - Unload and reload module"
+	@echo "  make dmesg        - Show recent kernel log"
+	@echo "  make info         - Show module information"
+	@echo ""
+	@echo "Development targets:"
+	@echo "  make verbose      - Build with verbose output"
+	@echo "  make check-headers- Check kernel headers"
+	@echo "  make sparse       - Run sparse static analyzer"
+	@echo "  make checkpatch   - Check coding style"
+	@echo ""
+	@echo "Cross-compilation:"
+	@echo "  make arm          - Build for ARM"
+	@echo "  make arm64        - Build for ARM64"
+	@echo "  make ARCH=<arch> CROSS_COMPILE=<prefix>"
