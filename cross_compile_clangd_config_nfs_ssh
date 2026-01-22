@@ -1,0 +1,10 @@
+# .clangd
+CompileFlags:
+        CompilationDatabase: .
+Add:
+        - --query-driver=/opt/arm-toolchain/bin/arm-none-linux-gnueabihf-gcc
+        - --target=arm-linux-gnueabihf
+Remove:
+        - -mabi=*
+        - -march=*
+        - -mtune=*
