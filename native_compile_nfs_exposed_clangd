@@ -1,0 +1,11 @@
+# This file assumes that you have exposed target's / mount point on ~/ORIN on your host
+# You might also have to created symlink of /home/syedkhs/ORIN/home/orin/ at /home/orin
+# This might be required for clangd to work because otherwise path resolution is weird and
+# clangd fails to get CWD.
+CompileFlags:
+  Remove:
+    - -fsanitize*
+  Add:
+    - --sysroot=/home/syedkhs/ORIN
+    - -isystem
+    - /home/syedkhs/ORIN/usr/include/aarch64-linux-gnu
