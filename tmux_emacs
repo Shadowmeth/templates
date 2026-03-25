@@ -1,0 +1,12 @@
+# Place in ~/.tmux.conf
+unbind C-b
+set -g prefix C-x
+bind C-x send-prefix
+
+set -g mode-keys emacs
+set -g status-keys emacs
+set -s escape-time 0
+
+set -g base-index 1
+set -g pane-base-index 1
+set -g renumber-windows on
