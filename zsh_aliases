@@ -1,8 +1,4 @@
 alias sl="ls"
-alias mux="tmuxinator"
 alias py="python3"
 alias touchpaddisable="gsettings set org.gnome.desktop.peripherals.touchpad send-events disabled-on-external-mouse"
 alias touchpadenable="gsettings set org.gnome.desktop.peripherals.touchpad send-events enabled"
-alias lg="lazygit"
-alias yz="yazi"
-alias nv="nvim"
