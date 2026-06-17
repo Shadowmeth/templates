@@ -1,1 +1,29 @@
 /configure --with-native-compilation=aot --with-mailutils --with-tree-sitter --with-imagemagick --with-modules --with-threads --without-pgtk --without-compress-install --with-xft --with-jpeg --with-tiff --with-gif --with-png --with-rsvg --with-webp --with-harfbuzz --with-libgmp --with-libotf --with-cairo --with-sqlite3 --with-gnutls --with-xml2 --with-dbus --with-x-toolkit=gtk3
+
+./configure \
+  --with-native-compilation=aot \
+  --with-mailutils \
+  --with-tree-sitter \
+  --with-imagemagick \
+  --with-modules \
+  --with-threads \
+  --with-pgtk \
+  --without-compress-install \
+  --with-jpeg \
+  --with-tiff \
+  --with-gif \
+  --with-png \ 
+  --with-rsvg \
+  --with-webp \    
+  --with-harfbuzz \
+  --with-libgmp \
+  --with-libotf \
+  --with-cairo \  
+  --with-sqlite3 \
+  --with-gnutls \
+  --with-xml2 \
+  --with-dbus \    
+  --with-xwidgets \
+  --with-sound \
+  --with-lcms2 \                                               
+  CFLAGS="-O2 -march=native -mtune=native -fomit-frame-pointer"
