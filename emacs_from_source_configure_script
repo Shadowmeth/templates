@@ -22,8 +22,7 @@
   --with-sqlite3 \
   --with-gnutls \
   --with-xml2 \
-  --with-dbus \    
-  --with-xwidgets \
+  --with-dbus \
   --with-sound \
   --with-lcms2 \                                               
   CFLAGS="-O2 -march=native -mtune=native -fomit-frame-pointer"
