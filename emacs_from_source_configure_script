@@ -12,17 +12,17 @@
   --with-jpeg \
   --with-tiff \
   --with-gif \
-  --with-png \ 
+  --with-png \
   --with-rsvg \
-  --with-webp \    
+  --with-webp \
   --with-harfbuzz \
   --with-libgmp \
   --with-libotf \
-  --with-cairo \  
+  --with-cairo \
   --with-sqlite3 \
   --with-gnutls \
   --with-xml2 \
   --with-dbus \
   --with-sound \
-  --with-lcms2 \                                               
+  --with-lcms2 \
   CFLAGS="-O2 -march=native -mtune=native -fomit-frame-pointer"
