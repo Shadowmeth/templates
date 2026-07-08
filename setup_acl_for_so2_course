@@ -1,0 +1,14 @@
+# in bash
+sudo ln -s /var/lib/docker/volumes/SO2_DOCKER_VOLUME/_data /linux
+
+sudo setfacl -m u:1000:x /var/lib/docker
+sudo setfacl -m u:1000:x /var/lib/docker/volumes
+sudo setfacl -m u:1000:x /var/lib/docker/volumes/SO2_DOCKER_VOLUME
+ME=$(id -un)
+sudo setfacl -R -m u:1000:rwX -m d:u:1000:rwX /var/lib/docker/volumes/SO2_DOCKER_VOLUME/_data
+
+sudo chown -R syedkhs:syedkhs /var/lib/docker/volumes/SO2_DOCKER_VOLUME/_data
+sudo chmod 711 /var/lib/docker
+sudo chmod 711 /var/lib/docker/volumes
+sudo chmod 711 /var/lib/docker/volumes/SO2_DOCKER_VOLUME
+sudo setfacl -R -m d:u:syedkhs:rwX /var/lib/docker/volumes/SO2_DOCKER_VOLUME/_data
