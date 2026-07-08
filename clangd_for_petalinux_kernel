@@ -1,0 +1,37 @@
+# Create / get kernel source with:
+# devtool modify virtual/kernel
+
+# Generate compile commands with:
+# python3 scripts/clang-tools/gen_compile_commands.py -d /home/<home>/Workspace/interrogator-yocto-i2c-mux-sensors/yocto/build/tmp/work/refdes_xu6_st1_teresol-xilinx-linux/linux-xlnx/6.6.40+git/linux-xlnx-6.6.40+git -o compile_commands.json
+
+# Place this clangd into kernel root
+CompileFlags:
+  Remove:
+    # GCC-only codegen/diag flags clang rejects
+    - -fno-allow-store-data-races
+    - -fconserve-stack
+    - -fmin-function-alignment=*
+    - -mgeneral-regs-only
+    - -mabi=lp64
+    - -mlittle-endian
+    - -mstack-protector-guard*
+    - -Wno-maybe-uninitialized
+    - -Wno-alloc-size-larger-than
+    - -Wimplicit-fallthrough=*
+    - -Werror=designated-init
+    - -Wno-packed-not-aligned
+    - -Wno-format-truncation
+    - -Wno-format-overflow
+    - -Wno-stringop-truncation
+    - -Wno-stringop-overflow
+    - -Wno-restrict
+    - -Wno-dangling-pointer
+    - -fno-var-tracking-assignments
+    - -femit-struct-debug-baseonly
+    - -fcanon-prefix-map
+  Add:
+    - --target=aarch64-linux-gnu
+Diagnostics:
+  UnusedIncludes: None
+  Suppress:
+    - unused-includes
