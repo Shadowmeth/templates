@@ -2,7 +2,12 @@
 # devtool modify virtual/kernel
 
 # Generate compile commands with:
-# python3 scripts/clang-tools/gen_compile_commands.py -d /home/<home>/Workspace/interrogator-yocto-i2c-mux-sensors/yocto/build/tmp/work/refdes_xu6_st1_teresol-xilinx-linux/linux-xlnx/6.6.40+git/linux-xlnx-6.6.40+git -o compile_commands.json
+# python3 scripts/clang-tools/gen_compile_commands.py -d /home/<home>/<REPO ROOT>/yocto/build/tmp/work/refdes_xu6_st1_teresol-xilinx-linux/linux-xlnx/6.6.40+git/linux-xlnx-6.6.40+git -o compile_commands.json
+
+# Note that if the build is happening inside the container, generate the compile_commands.json inside the container too.
+# On host machine to resolve path issues inside compilation database run this:
+# sudo ln -s /home/<home>/Workspace/<REPO ROOT> /workdir
+# This will resolve the eglot LSP errors immediately.
 
 # Place this clangd into kernel root
 CompileFlags:
